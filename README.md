@@ -131,11 +131,19 @@ Ejemplo para crear una reserva:
 ## Arquitectura
 
 - `src/config/env.config.js`: carga y valida las variables de entorno.
+- `src/controllers/services.controller.js`: recibe solicitudes de servicios, llama a `ServiceManager` y construye las respuestas HTTP.
+- `src/controllers/bookings.controller.js`: recibe solicitudes de reservas, llama a `BookingManager` y valida servicios mediante `ServiceManager` cuando corresponde.
 - `src/managers/ServiceManager.js`: gestiona `services.json`.
 - `src/managers/BookingManager.js`: gestiona `bookings.json` y la relación con servicios.
-- `src/routes/services.router.js`: define las rutas HTTP de `services`.
-- `src/routes/bookings.router.js`: define las rutas HTTP de `bookings`.
+- `src/routes/services.router.js`: define las rutas HTTP de `services` y las conecta con sus controllers.
+- `src/routes/bookings.router.js`: define las rutas HTTP de `bookings` y las conecta con sus controllers.
 - `src/data/services.json`: persistencia inicial de servicios.
 - `src/data/bookings.json`: persistencia de reservas.
 - `src/app.js`: configura Express y monta las rutas.
 - `src/server.js`: inicia el servidor HTTP.
+
+La API está organizada en tres capas:
+
+- **Rutas:** definen los endpoints y los conectan con el controller correspondiente.
+- **Controllers:** leen `req.params`, `req.query` y `req.body`, llaman a los managers y responden mediante `res.status().json()`.
+- **Managers:** contienen la lógica de datos y la persistencia, sin depender de `req` ni `res`.

@@ -1,23 +1,13 @@
 import express from 'express';
+import { createBookingsController } from '../controllers/bookings.controller.js';
 
-export const createBookingsRouter = (bookingManager) => {
+export const createBookingsRouter = (bookingManager, serviceManager) => {
   const router = express.Router();
+  const controller = createBookingsController(bookingManager, serviceManager);
 
-  router.post('/', (request, response) => {
-    response.status(201).json(bookingManager.createBooking(request.body));
-  });
-
-  router.get('/:bid', (request, response) => {
-    const booking = bookingManager.getBookingById(request.params.bid);
-    response.status(booking ? 200 : 404).json(booking ?? { error: 'Reserva no encontrada.' });
-  });
-
-  router.post('/:bid/services/:sid', (request, response) => {
-    const booking = bookingManager.addServiceToBooking(request.params.bid, request.params.sid);
-    response.status(booking ? 200 : 404).json(
-      booking ?? { error: 'La reserva o el servicio no existe.' }
-    );
-  });
+  router.post('/', controller.createBooking);
+  router.get('/:bid', controller.getBookingById);
+  router.post('/:bid/services/:sid', controller.addServiceToBooking);
 
   return router;
 };

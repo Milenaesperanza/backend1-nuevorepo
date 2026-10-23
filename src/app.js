@@ -18,7 +18,7 @@ export const createApp = (
   app.use(express.json());
 
   app.use('/api/services', createServicesRouter(serviceManager));
-  app.use('/api/bookings', createBookingsRouter(bookingManager));
+  app.use('/api/bookings', createBookingsRouter(bookingManager, serviceManager));
 
   app.use('/api/services', (request, response) => {
     response.status(405).json({ error: 'Método no permitido.' });
