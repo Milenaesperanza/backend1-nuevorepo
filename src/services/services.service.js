@@ -1,21 +1,13 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const currentDirectory = dirname(fileURLToPath(import.meta.url));
-const defaultDataPath = resolve(currentDirectory, '../data/services.json');
-
-export class ServiceManager {
-  constructor(dataPath = defaultDataPath) {
-    this.dataPath = resolve(dataPath);
-    this.services = this.#loadServices();
+export class ServicesService {
+  constructor(repository) {
+    this.repository = repository;
   }
 
   getServices(filters = {}) {
     const { category, available, search } = filters;
     const normalizedSearch = search?.toLowerCase().trim();
 
-    return this.services.filter((service) => {
+    return this.repository.getAll().filter((service) => {
       const matchesCategory = category
         ? service.category.toLowerCase() === category.toLowerCase()
         : true;
@@ -33,80 +25,38 @@ export class ServiceManager {
   }
 
   getServiceById(id) {
-    return this.services.find((service) => service.id === id) ?? null;
+    return this.repository.getById(id);
   }
 
-  addService(serviceData) {
+  createService(serviceData) {
     if (serviceData?.id !== undefined) {
       throw new Error('El id se genera automáticamente y no debe enviarse al agregar un servicio.');
     }
 
-    const service = this.#normalizeService(serviceData);
-    const newService = {
+    const service = {
       id: this.#nextId(),
-      ...service,
+      ...this.#normalizeService(serviceData),
     };
-
-    this.services.push(newService);
-    this.#saveServices();
-    return newService;
+    return this.repository.create(service);
   }
 
   updateService(id, updatedData) {
-    const index = this.services.findIndex((service) => service.id === id);
-
-    if (index === -1) {
-      return null;
-    }
+    const currentService = this.repository.getById(id);
+    if (!currentService) return null;
 
     if (updatedData?.id !== undefined && updatedData.id !== id) {
       throw new Error('El id de un servicio no se puede modificar.');
     }
 
-    const updatedService = this.#normalizeService({
-      ...this.services[index],
-      ...updatedData,
+    const updatedService = {
       id,
-    });
-
-    this.services[index] = { id, ...updatedService };
-    this.#saveServices();
-    return this.services[index];
+      ...this.#normalizeService({ ...currentService, ...updatedData, id }),
+    };
+    return this.repository.update(id, updatedService);
   }
 
   deleteService(id) {
-    const deletedService = this.getServiceById(id);
-
-    if (!deletedService) {
-      return null;
-    }
-
-    this.services = this.services.filter((service) => service.id !== id);
-    this.#saveServices();
-    return deletedService;
-  }
-
-  #loadServices() {
-    if (!existsSync(this.dataPath)) {
-      throw new Error(`No se encontró el archivo de servicios: ${this.dataPath}`);
-    }
-
-    try {
-      const content = readFileSync(this.dataPath, 'utf8');
-      const services = JSON.parse(content);
-
-      if (!Array.isArray(services)) {
-        throw new Error('El archivo debe contener un array de servicios.');
-      }
-
-      return services;
-    } catch (error) {
-      throw new Error(`No se pudo cargar el catálogo de servicios: ${error.message}`);
-    }
-  }
-
-  #saveServices() {
-    writeFileSync(this.dataPath, `${JSON.stringify(this.services, null, 2)}\n`, 'utf8');
+    return this.repository.delete(id);
   }
 
   #normalizeService(service) {
@@ -114,18 +64,10 @@ export class ServiceManager {
       throw new Error('Los datos del servicio son obligatorios.');
     }
 
-    const requiredFields = [
-      'name',
-      'description',
-      'duration',
-      'price',
-      'category',
-      'available',
-    ];
+    const requiredFields = ['name', 'description', 'duration', 'price', 'category', 'available'];
     const missingFields = requiredFields.filter(
       (field) => service[field] === undefined || service[field] === null
     );
-
     if (missingFields.length > 0) {
       throw new Error(`Faltan propiedades obligatorias: ${missingFields.join(', ')}.`);
     }
@@ -142,15 +84,12 @@ export class ServiceManager {
     if (!normalized.name || !normalized.description || !normalized.category) {
       throw new Error('name, description y category no pueden estar vacíos.');
     }
-
     if (!Number.isFinite(normalized.price) || normalized.price < 0) {
       throw new Error('El precio del servicio debe ser un número mayor o igual a 0.');
     }
-
     if (!Number.isInteger(normalized.duration) || normalized.duration <= 0) {
       throw new Error('La duración debe ser un número entero mayor a 0.');
     }
-
     if (typeof normalized.available !== 'boolean') {
       throw new Error('available debe ser un valor booleano.');
     }
@@ -159,11 +98,11 @@ export class ServiceManager {
   }
 
   #nextId() {
-    const numericIds = this.services
+    const numericIds = this.repository
+      .getAll()
       .map((service) => Number.parseInt(String(service.id).replace(/^service-/, ''), 10))
       .filter(Number.isInteger);
     const nextNumber = numericIds.length > 0 ? Math.max(...numericIds) + 1 : 1;
-
     return `service-${nextNumber}`;
   }
 }

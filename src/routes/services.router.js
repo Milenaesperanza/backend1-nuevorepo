@@ -1,9 +1,9 @@
 import express from 'express';
 import { createServicesController } from '../controllers/services.controller.js';
 
-export const createServicesRouter = (serviceManager) => {
+export const createServicesRouter = (servicesService) => {
   const router = express.Router();
-  const controller = createServicesController(serviceManager);
+  const controller = createServicesController(servicesService);
 
   router.get('/', controller.getServices);
   router.post('/', controller.createService);

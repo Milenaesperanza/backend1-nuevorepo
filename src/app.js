@@ -1,12 +1,19 @@
 import express from 'express';
-import { ServiceManager } from './managers/ServiceManager.js';
-import { BookingManager } from './managers/BookingManager.js';
+import { ServicesDao } from './dao/services.dao.js';
+import { BookingsDao } from './dao/bookings.dao.js';
+import { ServicesRepository } from './repositories/services.repository.js';
+import { BookingsRepository } from './repositories/bookings.repository.js';
+import { ServicesService } from './services/services.service.js';
+import { BookingsService } from './services/bookings.service.js';
 import { createServicesRouter } from './routes/services.router.js';
 import { createBookingsRouter } from './routes/bookings.router.js';
 
 export const createApp = (
-  serviceManager = new ServiceManager(),
-  bookingManager = new BookingManager(undefined, serviceManager)
+  servicesService = new ServicesService(new ServicesRepository(new ServicesDao())),
+  bookingsService = new BookingsService(
+    new BookingsRepository(new BookingsDao()),
+    servicesService
+  )
 ) => {
   const app = express();
 
@@ -17,8 +24,8 @@ export const createApp = (
 
   app.use(express.json());
 
-  app.use('/api/services', createServicesRouter(serviceManager));
-  app.use('/api/bookings', createBookingsRouter(bookingManager, serviceManager));
+  app.use('/api/services', createServicesRouter(servicesService));
+  app.use('/api/bookings', createBookingsRouter(bookingsService));
 
   app.use('/api/services', (request, response) => {
     response.status(405).json({ error: 'Método no permitido.' });
@@ -41,6 +48,10 @@ export const createApp = (
   return app;
 };
 
-export const serviceManager = new ServiceManager();
-export const bookingManager = new BookingManager(undefined, serviceManager);
-export const app = createApp(serviceManager, bookingManager);
+export const servicesDao = new ServicesDao();
+export const bookingsDao = new BookingsDao();
+export const servicesRepository = new ServicesRepository(servicesDao);
+export const bookingsRepository = new BookingsRepository(bookingsDao);
+export const servicesService = new ServicesService(servicesRepository);
+export const bookingsService = new BookingsService(bookingsRepository, servicesService);
+export const app = createApp(servicesService, bookingsService);

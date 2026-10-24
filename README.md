@@ -76,14 +76,14 @@ El listado acepta filtros opcionales:
 GET /api/services?category=peluqueria&available=true&search=baño
 ```
 
-### Uso de `ServiceManager`
+### Uso de la capa de servicios
 
 ```js
-import { ServiceManager } from './src/managers/ServiceManager.js';
+import { ServicesService } from './src/services/services.service.js';
 
-const serviceManager = new ServiceManager();
-const services = serviceManager.getServices();
-const service = serviceManager.getServiceById('service-1');
+const servicesService = new ServicesService(servicesRepository);
+const services = servicesService.getServices();
+const service = servicesService.getServiceById('service-1');
 ```
 
 ## Recurso `bookings`
@@ -131,10 +131,14 @@ Ejemplo para crear una reserva:
 ## Arquitectura
 
 - `src/config/env.config.js`: carga y valida las variables de entorno.
-- `src/controllers/services.controller.js`: recibe solicitudes de servicios, llama a `ServiceManager` y construye las respuestas HTTP.
-- `src/controllers/bookings.controller.js`: recibe solicitudes de reservas, llama a `BookingManager` y valida servicios mediante `ServiceManager` cuando corresponde.
-- `src/managers/ServiceManager.js`: gestiona `services.json`.
-- `src/managers/BookingManager.js`: gestiona `bookings.json` y la relación con servicios.
+- `src/controllers/services.controller.js`: recibe solicitudes de servicios, llama al service y construye las respuestas HTTP.
+- `src/controllers/bookings.controller.js`: recibe solicitudes de reservas, llama al service y construye las respuestas HTTP.
+- `src/services/services.service.js`: contiene las reglas de negocio y validaciones de servicios.
+- `src/services/bookings.service.js`: contiene las reglas de negocio y validaciones de reservas, incluida la relación con servicios.
+- `src/repositories/services.repository.js`: abstrae el acceso al DAO de servicios.
+- `src/repositories/bookings.repository.js`: abstrae el acceso al DAO de reservas.
+- `src/dao/services.dao.js`: lee y escribe directamente `services.json`.
+- `src/dao/bookings.dao.js`: lee y escribe directamente `bookings.json`.
 - `src/routes/services.router.js`: define las rutas HTTP de `services` y las conecta con sus controllers.
 - `src/routes/bookings.router.js`: define las rutas HTTP de `bookings` y las conecta con sus controllers.
 - `src/data/services.json`: persistencia inicial de servicios.
@@ -142,8 +146,10 @@ Ejemplo para crear una reserva:
 - `src/app.js`: configura Express y monta las rutas.
 - `src/server.js`: inicia el servidor HTTP.
 
-La API está organizada en tres capas:
+La API está organizada en cinco capas:
 
 - **Rutas:** definen los endpoints y los conectan con el controller correspondiente.
-- **Controllers:** leen `req.params`, `req.query` y `req.body`, llaman a los managers y responden mediante `res.status().json()`.
-- **Managers:** contienen la lógica de datos y la persistencia, sin depender de `req` ni `res`.
+- **Controllers:** leen `req.params`, `req.query` y `req.body`, llaman a los services y responden mediante `res.status().json()`.
+- **Services:** contienen las reglas de negocio, sin depender de `req` ni `res`.
+- **Repositories:** ofrecen métodos de acceso a datos sin reglas de negocio.
+- **DAO:** leen y escriben directamente en los archivos JSON.
