@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const requiredVariables = ['PORT', 'NODE_ENV'];
+const requiredVariables = ['PORT', 'NODE_ENV', 'MONGO_URI'];
 const missingVariables = requiredVariables.filter((variable) => {
   const value = process.env[variable];
   return !value || value.trim() === '';
@@ -24,4 +24,5 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
 export const env = Object.freeze({
   port,
   nodeEnv: process.env.NODE_ENV,
+  mongoUri: process.env.MONGO_URI,
 });

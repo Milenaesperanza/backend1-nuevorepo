@@ -4,34 +4,40 @@ export class BookingsService {
     this.servicesService = servicesService;
   }
 
-  createBooking(bookingData) {
+  async createBooking(bookingData) {
     if (bookingData?.id !== undefined) {
       throw new Error('El id se genera automáticamente y no debe enviarse al crear una reserva.');
     }
 
     const booking = {
-      id: this.#nextId(),
-      ...this.#normalizeBooking(bookingData),
+      id: await this.#nextId(),
+      ...await this.#normalizeBooking(bookingData),
     };
-    return this.repository.create(booking);
+    return this.#toExternalBooking(await this.repository.create(booking));
   }
 
-  getBookingById(id) {
-    return this.repository.getById(id);
+  async getBookingById(id) {
+    const booking = await this.repository.getById(id);
+    return this.#toExternalBooking(booking);
   }
 
-  addServiceToBooking(bookingId, serviceId) {
-    const booking = this.repository.getById(bookingId);
-    if (!booking || !this.servicesService.getServiceById(serviceId)) return null;
+  async addServiceToBooking(bookingId, serviceId) {
+    const booking = await this.repository.getById(bookingId);
+    const service = await this.servicesService.getServiceDocumentById(serviceId);
+    if (!booking || !service) return null;
 
-    const bookingService = booking.services.find((item) => item.service === serviceId);
+    const serviceReference = service._id;
+
+    const bookingService = booking.services.find(
+      (item) => item.service.toString() === serviceReference.toString()
+    );
     if (bookingService) bookingService.quantity += 1;
-    else booking.services.push({ service: serviceId, quantity: 1 });
+    else booking.services.push({ service: serviceReference, quantity: 1 });
 
-    return this.repository.update(bookingId, booking);
+    return this.#toExternalBooking(await this.repository.update(bookingId, booking));
   }
 
-  #normalizeBooking(booking) {
+  async #normalizeBooking(booking) {
     if (!booking || typeof booking !== 'object') {
       throw new Error('Los datos de la reserva son obligatorios.');
     }
@@ -57,17 +63,18 @@ export class BookingsService {
       throw new Error('clientEmail debe ser un email válido.');
     }
     if (!Array.isArray(normalized.services)) throw new Error('services debe ser un array.');
-    normalized.services = this.#normalizeServices(normalized.services);
+    normalized.services = await this.#normalizeServices(normalized.services);
     return normalized;
   }
 
-  #normalizeServices(services) {
+  async #normalizeServices(services) {
     const normalizedServices = [];
     for (const item of services) {
       if (!item || typeof item !== 'object' || typeof item.service !== 'string') {
         throw new Error('Cada servicio de una reserva debe tener un id en service.');
       }
-      if (!this.servicesService.getServiceById(item.service)) {
+      const service = await this.servicesService.getServiceDocumentById(item.service);
+      if (!service) {
         throw new Error(`El servicio ${item.service} no existe.`);
       }
 
@@ -76,11 +83,29 @@ export class BookingsService {
         throw new Error('La quantity de un servicio debe ser un entero mayor a 0.');
       }
 
-      const existing = normalizedServices.find((service) => service.service === item.service);
+      const existing = normalizedServices.find(
+        (normalizedService) => normalizedService.service.toString() === service._id.toString()
+      );
       if (existing) existing.quantity += quantity;
-      else normalizedServices.push({ service: item.service, quantity });
+      else normalizedServices.push({ service: service._id, quantity });
     }
     return normalizedServices;
+  }
+
+  async #toExternalBooking(booking) {
+    if (!booking) return null;
+
+    const services = await Promise.all(
+      booking.services.map(async (item) => {
+        const service = await this.servicesService.getServiceByMongoId(item.service);
+        return {
+          service: service?.id ?? item.service.toString(),
+          quantity: item.quantity,
+        };
+      })
+    );
+
+    return { ...booking, services };
   }
 
   #requiredText(value, field) {
@@ -90,9 +115,9 @@ export class BookingsService {
     return value.trim();
   }
 
-  #nextId() {
-    const numericIds = this.repository
-      .getAll()
+  async #nextId() {
+    const bookings = await this.repository.getAll();
+    const numericIds = bookings
       .map((booking) => Number.parseInt(String(booking.id).replace(/^booking-/, ''), 10))
       .filter(Number.isInteger);
     const nextNumber = numericIds.length > 0 ? Math.max(...numericIds) + 1 : 1;

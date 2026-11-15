@@ -1,11 +1,12 @@
 # Manada Servicios
 
-API Node.js con Express y persistencia en archivos JSON para gestionar los servicios y reservas de Manada PetShop.
+API Node.js con Express, Mongoose y MongoDB Atlas para gestionar los servicios y reservas de Manada PetShop.
 
 ## Requisitos
 
 - Node.js 18 o superior
 - npm
+- MongoDB Atlas
 
 ## Instalación
 
@@ -39,6 +40,7 @@ La aplicación requiere estas variables:
 
 | Variable | Descripción | Ejemplo |
 | --- | --- | --- |
+| `MONGO_URI` | URI de conexion a MongoDB Atlas | `mongodb+srv://...` |
 | `PORT` | Puerto de ejecución de la aplicación | `8080` |
 | `NODE_ENV` | Entorno de ejecución | `development` |
 
@@ -137,8 +139,12 @@ Ejemplo para crear una reserva:
 - `src/services/bookings.service.js`: contiene las reglas de negocio y validaciones de reservas, incluida la relación con servicios.
 - `src/repositories/services.repository.js`: abstrae el acceso al DAO de servicios.
 - `src/repositories/bookings.repository.js`: abstrae el acceso al DAO de reservas.
-- `src/dao/services.dao.js`: lee y escribe directamente `services.json`.
-- `src/dao/bookings.dao.js`: lee y escribe directamente `bookings.json`.
+- `src/dao/services.mongo.dao.js`: persiste servicios mediante Mongoose.
+- `src/dao/bookings.mongo.dao.js`: persiste reservas mediante Mongoose.
+- `src/models/service.model.js`: esquema de servicios.
+- `src/models/booking.model.js`: esquema de reservas y referencias `ObjectId`.
+- `src/models/message.model.js`: esquema de mensajes.
+- `src/scripts/seed-services.js`: carga los servicios iniciales desde el JSON.
 - `src/routes/services.router.js`: define las rutas HTTP de `services` y las conecta con sus controllers.
 - `src/routes/bookings.router.js`: define las rutas HTTP de `bookings` y las conecta con sus controllers.
 - `src/data/services.json`: persistencia inicial de servicios.
@@ -152,4 +158,14 @@ La API está organizada en cinco capas:
 - **Controllers:** leen `req.params`, `req.query` y `req.body`, llaman a los services y responden mediante `res.status().json()`.
 - **Services:** contienen las reglas de negocio, sin depender de `req` ni `res`.
 - **Repositories:** ofrecen métodos de acceso a datos sin reglas de negocio.
-- **DAO:** leen y escriben directamente en los archivos JSON.
+- **DAO:** leen y escriben documentos mediante Mongoose.
+
+## Migracion inicial
+
+Para cargar los servicios iniciales en MongoDB Atlas:
+
+```bash
+npm run seed:services
+```
+
+El comando es idempotente: actualiza servicios existentes por su `id` y no los duplica.

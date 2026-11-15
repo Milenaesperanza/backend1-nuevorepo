@@ -3,11 +3,12 @@ export class ServicesService {
     this.repository = repository;
   }
 
-  getServices(filters = {}) {
+  async getServices(filters = {}) {
     const { category, available, search } = filters;
     const normalizedSearch = search?.toLowerCase().trim();
 
-    return this.repository.getAll().filter((service) => {
+    const services = await this.repository.getAll();
+    return services.filter((service) => {
       const matchesCategory = category
         ? service.category.toLowerCase() === category.toLowerCase()
         : true;
@@ -24,24 +25,32 @@ export class ServicesService {
     });
   }
 
-  getServiceById(id) {
+  async getServiceById(id) {
     return this.repository.getById(id);
   }
 
-  createService(serviceData) {
+  async getServiceDocumentById(id) {
+    return this.repository.getDocumentById(id);
+  }
+
+  async getServiceByMongoId(id) {
+    return this.repository.getByMongoId(id);
+  }
+
+  async createService(serviceData) {
     if (serviceData?.id !== undefined) {
       throw new Error('El id se genera automáticamente y no debe enviarse al agregar un servicio.');
     }
 
     const service = {
-      id: this.#nextId(),
+      id: await this.#nextId(),
       ...this.#normalizeService(serviceData),
     };
     return this.repository.create(service);
   }
 
-  updateService(id, updatedData) {
-    const currentService = this.repository.getById(id);
+  async updateService(id, updatedData) {
+    const currentService = await this.repository.getById(id);
     if (!currentService) return null;
 
     if (updatedData?.id !== undefined && updatedData.id !== id) {
@@ -55,7 +64,7 @@ export class ServicesService {
     return this.repository.update(id, updatedService);
   }
 
-  deleteService(id) {
+  async deleteService(id) {
     return this.repository.delete(id);
   }
 
@@ -97,9 +106,9 @@ export class ServicesService {
     return normalized;
   }
 
-  #nextId() {
-    const numericIds = this.repository
-      .getAll()
+  async #nextId() {
+    const services = await this.repository.getAll();
+    const numericIds = services
       .map((service) => Number.parseInt(String(service.id).replace(/^service-/, ''), 10))
       .filter(Number.isInteger);
     const nextNumber = numericIds.length > 0 ? Math.max(...numericIds) + 1 : 1;

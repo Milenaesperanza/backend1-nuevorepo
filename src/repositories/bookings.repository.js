@@ -3,19 +3,19 @@ export class BookingsRepository {
     this.dao = dao;
   }
 
-  create(booking) {
+  async create(booking) {
     return this.dao.create(booking);
   }
 
-  getById(id) {
+  async getById(id) {
     return this.dao.getById(id);
   }
 
-  getAll() {
+  async getAll() {
     return this.dao.getAll();
   }
 
-  update(id, booking) {
+  async update(id, booking) {
     return this.dao.update(id, booking);
   }
 }

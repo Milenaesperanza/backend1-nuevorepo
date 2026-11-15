@@ -1,6 +1,6 @@
 import express from 'express';
-import { ServicesDao } from './dao/services.dao.js';
-import { BookingsDao } from './dao/bookings.dao.js';
+import { ServicesMongoDao } from './dao/services.mongo.dao.js';
+import { BookingsMongoDao } from './dao/bookings.mongo.dao.js';
 import { ServicesRepository } from './repositories/services.repository.js';
 import { BookingsRepository } from './repositories/bookings.repository.js';
 import { ServicesService } from './services/services.service.js';
@@ -9,9 +9,9 @@ import { createServicesRouter } from './routes/services.router.js';
 import { createBookingsRouter } from './routes/bookings.router.js';
 
 export const createApp = (
-  servicesService = new ServicesService(new ServicesRepository(new ServicesDao())),
+  servicesService = new ServicesService(new ServicesRepository(new ServicesMongoDao())),
   bookingsService = new BookingsService(
-    new BookingsRepository(new BookingsDao()),
+    new BookingsRepository(new BookingsMongoDao()),
     servicesService
   )
 ) => {
@@ -48,8 +48,8 @@ export const createApp = (
   return app;
 };
 
-export const servicesDao = new ServicesDao();
-export const bookingsDao = new BookingsDao();
+export const servicesDao = new ServicesMongoDao();
+export const bookingsDao = new BookingsMongoDao();
 export const servicesRepository = new ServicesRepository(servicesDao);
 export const bookingsRepository = new BookingsRepository(bookingsDao);
 export const servicesService = new ServicesService(servicesRepository);
