@@ -1,0 +1,42 @@
+<section class="page-heading">
+  <p class="eyebrow">Agenda</p>
+  <h2>Reservas</h2>
+  <p>Reservas actuales obtenidas desde MongoDB.</p>
+</section>
+
+<div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th>Cliente</th>
+        <th>Email</th>
+        <th>Fecha</th>
+        <th>Hora</th>
+        <th>Estado</th>
+        <th>Servicios</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each bookings}}
+        <tr>
+          <td>{{clientName}}</td>
+          <td>{{clientEmail}}</td>
+          <td>{{date}}</td>
+          <td>{{time}}</td>
+          <td>{{status}}</td>
+          <td>
+            <ul class="service-list">
+              {{#each services}}
+                <li>{{service}} × {{quantity}}</li>
+              {{else}}
+                <li>Sin servicios asignados</li>
+              {{/each}}
+            </ul>
+          </td>
+        </tr>
+      {{else}}
+        <tr><td colspan="6">No hay reservas para mostrar.</td></tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>

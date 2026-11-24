@@ -169,3 +169,16 @@ npm run seed:services
 ```
 
 El comando es idempotente: actualiza servicios existentes por su `id` y no los duplica.
+
+## Vistas y comunicación en tiempo real
+
+La aplicación también expone vistas server-side renderizadas con Handlebars:
+
+- `GET /views/services`: catálogo de servicios.
+- `GET /views/availability`: disponibilidad actual de los servicios.
+- `GET /views/bookings`: reservas almacenadas.
+
+Las vistas consultan MongoDB mediante las capas existentes de services, repositories y DAO.
+La disponibilidad puede cambiarse desde las vistas de servicios o disponibilidad. Socket.IO
+emite el evento `service:toggle-availability` desde el navegador y difunde `services:updated`
+a todos los clientes conectados, sin recargar la página.

@@ -1,0 +1,33 @@
+<section class="page-heading">
+  <p class="eyebrow">Socket.IO</p>
+  <h2>Servicios en tiempo real</h2>
+  <p>Podés agregar, eliminar o cambiar la disponibilidad sin recargar la página.</p>
+</section>
+
+<form class="service-form" id="service-form">
+  <input name="name" placeholder="Nombre" required />
+  <input name="description" placeholder="Descripción" required />
+  <input name="duration" type="number" min="1" placeholder="Duración" required />
+  <input name="price" type="number" min="0" placeholder="Precio" required />
+  <input name="category" placeholder="Categoría" required />
+  <button type="submit">Agregar servicio</button>
+</form>
+
+<div class="table-wrapper">
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Nombre</th><th>Descripción</th><th>Duración</th><th>Precio</th><th>Categoría</th><th>Acciones</th></tr>
+    </thead>
+    <tbody id="services-list" data-realtime-products="true">
+      {{#each services}}
+        <tr data-service-row="{{id}}">
+          <td>{{id}}</td><td>{{name}}</td><td>{{description}}</td><td>{{duration}} min</td><td>${{price}}</td><td>{{category}}</td>
+          <td><button class="availability-button" data-service-id="{{id}}" data-available="{{available}}" type="button">Cambiar estado</button>
+          <button class="delete-button" data-delete-service-id="{{id}}" type="button">Eliminar</button></td>
+        </tr>
+      {{else}}
+        <tr><td colspan="7">No hay servicios para mostrar.</td></tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>

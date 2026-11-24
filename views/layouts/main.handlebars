@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{title}} | Manada Servicios</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <h1>Manada Servicios</h1>
+      <nav>
+        <a href="/">Inicio</a>
+        <a href="/realtimeproducts">Tiempo real</a>
+        <a href="/views/services">Servicios</a>
+        <a href="/views/availability">Disponibilidad</a>
+        <a href="/views/bookings">Reservas</a>
+      </nav>
+    </header>
+    <main class="container">
+      {{{body}}}
+    </main>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/socket.js"></script>
+  </body>
+</html>

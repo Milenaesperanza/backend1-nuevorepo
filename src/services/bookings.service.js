@@ -21,6 +21,11 @@ export class BookingsService {
     return this.#toExternalBooking(booking);
   }
 
+  async getBookings() {
+    const bookings = await this.repository.getAll();
+    return Promise.all(bookings.map((booking) => this.#toExternalBooking(booking)));
+  }
+
   async addServiceToBooking(bookingId, serviceId) {
     const booking = await this.repository.getById(bookingId);
     const service = await this.servicesService.getServiceDocumentById(serviceId);

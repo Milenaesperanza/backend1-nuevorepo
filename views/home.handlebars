@@ -1,0 +1,17 @@
+<section class="page-heading">
+  <p class="eyebrow">Catálogo</p>
+  <h2>Servicios de Manada</h2>
+  <p>Listado de servicios renderizado con Handlebars.</p>
+</section>
+
+<div class="availability-grid" id="services-list">
+  {{#each services}}
+    <article class="service-card">
+      <h3>{{name}}</h3>
+      <p>{{description}}</p>
+      <strong>${{price}}</strong>
+    </article>
+  {{else}}
+    <p>No hay servicios para mostrar.</p>
+  {{/each}}
+</div>

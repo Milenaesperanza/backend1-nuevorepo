@@ -1,0 +1,22 @@
+<section class="page-heading">
+  <p class="eyebrow">Estado en tiempo real</p>
+  <h2>Disponibilidad de servicios</h2>
+  <p>El estado se actualiza automáticamente cuando cambia desde otra sesión.</p>
+</section>
+
+<div class="availability-grid" id="services-list">
+  {{#each services}}
+    <article class="service-card" data-service-row="{{id}}">
+      <h3>{{name}}</h3>
+      <p>{{description}}</p>
+      <span class="status {{#if available}}status-available{{else}}status-unavailable{{/if}}">
+        {{#if available}}Disponible{{else}}No disponible{{/if}}
+      </span>
+      <button class="availability-button {{#if available}}is-available{{else}}is-unavailable{{/if}}" data-service-id="{{id}}" data-available="{{available}}" type="button">
+        Cambiar estado
+      </button>
+    </article>
+  {{else}}
+    <p>No hay servicios para mostrar.</p>
+  {{/each}}
+</div>

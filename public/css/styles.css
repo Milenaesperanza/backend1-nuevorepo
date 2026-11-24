@@ -1,0 +1,36 @@
+:root {
+  color-scheme: light;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  color: #263238;
+  background: #f4f7f6;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+.site-header { background: #16423c; color: white; padding: 1.25rem max(1rem, calc((100% - 1120px) / 2)); display: flex; gap: 2rem; align-items: center; justify-content: space-between; }
+.site-header h1 { margin: 0; font-size: 1.25rem; }
+nav { display: flex; gap: 1rem; flex-wrap: wrap; }
+nav a { color: white; text-decoration: none; }
+.container { max-width: 1120px; margin: 0 auto; padding: 2.5rem 1rem; }
+.page-heading { margin-bottom: 1.5rem; }
+.page-heading h2 { margin: .25rem 0; font-size: 2rem; }
+.page-heading p { color: #61706d; }
+.eyebrow { color: #b35c38 !important; font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.table-wrapper { overflow-x: auto; background: white; border: 1px solid #dce6e2; border-radius: .8rem; }
+table { width: 100%; border-collapse: collapse; min-width: 720px; }
+th, td { padding: .9rem 1rem; text-align: left; border-bottom: 1px solid #e8efec; }
+th { background: #edf4f1; font-size: .85rem; }
+.service-id { white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+.availability-button { border: 0; border-radius: 999px; cursor: pointer; font-weight: 700; padding: .5rem .8rem; }
+.is-available, .status-available { background: #d8f0e2; color: #17633b; }
+.is-unavailable, .status-unavailable { background: #f8ded8; color: #8b3024; }
+.availability-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+.service-card { background: white; border: 1px solid #dce6e2; border-radius: .8rem; padding: 1.25rem; display: grid; gap: .75rem; }
+.service-card h3, .service-card p { margin: 0; }
+.status { display: inline-block; width: fit-content; padding: .3rem .6rem; border-radius: 999px; font-size: .8rem; font-weight: 700; }
+.service-list { margin: 0; padding-left: 1rem; }
+.service-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .75rem; margin-bottom: 1.5rem; }
+.service-form input, .service-form button, .delete-button { border: 1px solid #cbd8d3; border-radius: .45rem; padding: .6rem .7rem; }
+.service-form button, .delete-button { background: #16423c; color: white; cursor: pointer; font-weight: 700; }
+.delete-button { background: #8b3024; border-color: #8b3024; margin-left: .4rem; }

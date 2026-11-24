@@ -1,0 +1,40 @@
+<section class="page-heading">
+  <p class="eyebrow">Catálogo</p>
+  <h2>Servicios</h2>
+  <p>Listado de servicios cargado desde MongoDB.</p>
+</section>
+
+<div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Descripción</th>
+        <th>Duración</th>
+        <th>Precio</th>
+        <th>Categoría</th>
+        <th>Disponibilidad</th>
+      </tr>
+    </thead>
+    <tbody id="services-list">
+      {{#each services}}
+        <tr data-service-row="{{id}}">
+          <td class="service-id">{{id}}</td>
+          <td>{{name}}</td>
+          <td>{{description}}</td>
+          <td>{{duration}} min</td>
+          <td>${{price}}</td>
+          <td>{{category}}</td>
+          <td>
+            <button class="availability-button {{#if available}}is-available{{else}}is-unavailable{{/if}}" data-service-id="{{id}}" data-available="{{available}}" type="button">
+              {{#if available}}Disponible{{else}}No disponible{{/if}}
+            </button>
+          </td>
+        </tr>
+      {{else}}
+        <tr><td colspan="7">No hay servicios para mostrar.</td></tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
